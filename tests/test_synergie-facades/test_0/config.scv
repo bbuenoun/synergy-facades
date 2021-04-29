@@ -1,0 +1,23 @@
+# configuration file for solar_curves
+
+[PATHS]
+ 
+output_dir = tests/test_tabsolar/test_0/actual_output
+
+temp_fluid_in = tests/test_tabsolar/test_0/temp_fluid_in.txt
+area = tests/test_tabsolar/test_0/area.txt
+
+[VARIABLES]
+
+# [K] Temperature of the exterior
+temp_outdoor  = 298.15
+# [K] Temperature of the interior
+temp_indoor = 293.15  
+# [kg/sm²] fluid mass flow  
+fluidmass_flow = 0.02 
+# [W/m²] Direct Irradiation on the front surface  
+irradiation = 750 
+# [m/s] Wind speed 
+wind_speed = 3
+#
+
