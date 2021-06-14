@@ -1,0 +1,28 @@
+# configuration file for solar_curves
+
+[PATHS]
+  
+output_dir = output/000 
+layers = config_files/layers_synergiefassaden_analytic.txt
+[VARIABLES]
+
+# [K] Temperature of the exterior 305.15
+temp_outdoor  = 305.15
+# [K] Temperature of the interior
+temp_indoor = 297.15 
+# [W/m²] Direct Irradiation on the front surface  783
+irradiation = 783
+# [W/m2/K] HTC conv. exterior 15
+conv_coeff_out = 15
+# [W/m2/K] HTC conv. interior 2.183248
+conv_coeff_in = 2.183248
+
+cavity_depth = 0.21
+# volume_flowrate of forced ventilation 0.02917 [m3/s]
+volume_flowrate = 0.02917 
+# fraction of flowarte through the shaft (the rest through the textil)
+cavity_flowrate_factor = 0.9
+textil_thickness = 0.0006
+textil_open_factor = 0.04
+temp_ini = 300.15
+

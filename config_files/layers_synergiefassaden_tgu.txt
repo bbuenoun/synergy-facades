@@ -1,0 +1,4 @@
+width,height,emi_inf_f,emi_inf_b,ref_inf_f,ref_inf_b,tra_inf_f,tra_inf_b,solar_tra,solar_ref,solar_abs,thickness,conductivity,gap
+1.5,1,0.89,0.08,0.11,0.92,0,0,0.75,0.12,0.13,0.004,1,0.014
+1.5,1,0.89,0.89,0.11,0.11,0,0,0.90,0.08,0.02,0.004,1,0.014
+1.5,1,0.08,0.89,0.92,0.11,0,0,0.75,0.14,0.11,0.004,1,0

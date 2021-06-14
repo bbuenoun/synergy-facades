@@ -18,9 +18,9 @@ def en673(
     temp_indoor,
     temp_sky,
     irradiation,
-    wind_speed,
     conv_coeff_in,
     conv_coeff_out,
+    layerVect,
 ):
     """ EN673 - 2 panes with closed cavity
     Glazing type = Double glazing (4 mm + 12 mm space + 4 mm) ,
@@ -31,38 +31,35 @@ def en673(
     layer = ndarray((number_layer, ), dtype=object)
     """ First layer """
     layer[0] = solar_func.Layer(
-        1.5,
-        1,
-        0.84,
-        0.84,
-        0.16,
-        0.16,
-        0,
-        0,
-        0.60,
-        0.27,
-        0.13,
-        0.004,
-        1,
-        0.012,
-    )
-    """ First layer """
+    layerVect[0, 0],
+    layerVect[0, 1],
+    layerVect[0, 2],
+    layerVect[0, 3],
+    layerVect[0, 4],
+    layerVect[0, 5],
+    layerVect[0, 6],
+    layerVect[0, 7],
+    layerVect[0, 8],
+    layerVect[0, 9],
+    layerVect[0, 10],
+    layerVect[0, 11],
+    layerVect[0, 12],
+    layerVect[0, 13],)
     layer[1] = solar_func.Layer(
-        1.5,
-        1,
-        0.84,
-        0.84,
-        0.16,
-        0.16,
-        0,
-        0,
-        0.60,
-        0.27,
-        0.13,
-        0.004,
-        1,
-        0,
-    )
+    layerVect[1, 0],
+    layerVect[1, 1],
+    layerVect[1, 2],
+    layerVect[1, 3],
+    layerVect[1, 4],
+    layerVect[1, 5],
+    layerVect[1, 6],
+    layerVect[1, 7],
+    layerVect[1, 8],
+    layerVect[1, 9],
+    layerVect[1, 10],
+    layerVect[1, 11],
+    layerVect[1, 12],
+    layerVect[1, 13])
     """ Absorbed Irradiance in each layer """
     abs_irrad = zeros(number_layer)
     abs_irrad[0] = irradiation * layer[0].solar_abs
@@ -149,9 +146,9 @@ def id4(
     temp_indoor,
     temp_sky,
     irradiation,
-    wind_speed,
     conv_coeff_in,
     conv_coeff_out,
+    layerVect,
 ):
     """ ID4 - internal roller blind inside reveal
     Glazing type = F (pane 1 / 16 mm space* / pane 2 (flipped) low e on position 3)
@@ -164,38 +161,35 @@ def id4(
     layer = ndarray((number_layer, ), dtype=object)
     """ First layer """
     layer[0] = solar_func.Layer(
-        1.5,
-        1,
-        0.84,
-        0.84,
-        0.16,
-        0.16,
-        0,
-        0,
-        0.60,
-        0.27,
-        0.13,
-        0.024,
-        0.0324,
-        0.07,
-    )
-    """ Second layer """
+    layerVect[0, 0],
+    layerVect[0, 1],
+    layerVect[0, 2],
+    layerVect[0, 3],
+    layerVect[0, 4],
+    layerVect[0, 5],
+    layerVect[0, 6],
+    layerVect[0, 7],
+    layerVect[0, 8],
+    layerVect[0, 9],
+    layerVect[0, 10],
+    layerVect[0, 11],
+    layerVect[0, 12],
+    layerVect[0, 13],)
     layer[1] = solar_func.Layer(
-        1.5,
-        1,
-        0.83,
-        0.83,
-        0.136,
-        0.136,
-        0.034,
-        0.034,
-        0,
-        0,
-        1,
-        0.00052,
-        0.3,
-        0,
-    )
+    layerVect[1, 0],
+    layerVect[1, 1],
+    layerVect[1, 2],
+    layerVect[1, 3],
+    layerVect[1, 4],
+    layerVect[1, 5],
+    layerVect[1, 6],
+    layerVect[1, 7],
+    layerVect[1, 8],
+    layerVect[1, 9],
+    layerVect[1, 10],
+    layerVect[1, 11],
+    layerVect[1, 12],
+    layerVect[1, 13])
     """ Absorbed Irradiance in each layer """
     abs_irrad = zeros(number_layer)
     abs_irrad[0] = irradiation * layer[0].solar_abs
@@ -214,28 +208,22 @@ def id4(
     (
         hc_1,
         temp_gap_out_1,
-        temp_gap_middle_1,
         temp_gap_1,
         q_v_g_1,
-        temp_av_1,
-        h_0_1,
-        alfa_1,
-        beta_1,
-    ) = solar_func.ventilated_case_esso(
+    ) = solar_func.ventilated_case( 
         temp_b_1_0,
         temp_f_2_0,
         temp_gap_1_0,
         temp_gap_in_1,
-        a_ho_1,
-        layer[1].height,
-        layer[1].width,
-        layer[0].gap,
-        -7777,
+        d_su,
         d_top,
         d_bot,
         d_left,
         d_right,
-        d_su,
+        layer[1].height,
+        layer[1].width,
+        layer[0].gap,
+        -7777,
     )
     # [W/m²] Sky (ambient) long wave irradiation
     j_b_0 = constant.SIGMA * temp_sky ** 4
@@ -255,8 +243,7 @@ def id4(
         """ First layer equations """
         F[0] = conv_coeff_out * (temp_f_1 - temp_outdoor) + j_f_1 \
             - j_b_0 - (abs_irrad[0] + hc_1 * (temp_gap_1 - temp_b_1)
-                       + j_f_2 - j_b_1 + q_v_g_1 * (temp_gap_in_1
-                       - temp_gap_out_1))
+                       + j_f_2 - j_b_1 )
         F[1] = j_f_1 - (layer[0].emi_inf_f * constant.SIGMA * temp_f_1
                         ** 4 + layer[0].tra_inf_f * j_f_2
                         + layer[0].ref_inf_f * j_b_0)
@@ -264,9 +251,8 @@ def id4(
                         ** 4 + layer[0].tra_inf_f * j_b_0
                         + layer[0].ref_inf_b * j_f_2)
         F[3] = temp_b_1 - temp_f_1 - layer[0].thickness / (2
-                                                           * layer[0].conductivity) * (2 * (hc_1 * (temp_gap_1
-                                                                                                    - temp_b_1) + j_f_2 - j_b_1 + q_v_g_1 * (temp_gap_in_1
-                                                                                                                                             - temp_gap_out_1)) + abs_irrad[0])
+                        * layer[0].conductivity) * (2 * (hc_1 * (temp_gap_1
+                        - temp_b_1) + j_f_2 - j_b_1 ) + abs_irrad[0])
         """ Second layer equations """
         F[4] = hc_1 * (temp_f_2 - temp_gap_1) + j_f_2 - j_b_1 \
             - (abs_irrad[1] + conv_coeff_in * (temp_indoor - temp_b_2)
@@ -303,35 +289,28 @@ def id4(
         (
             hc_1,
             temp_gap_out_1,
-            temp_gap_middle_1,
             temp_gap_1,
             q_v_g_1,
-            temp_av_1,
-            h_0_1,
-            alfa_1,
-            beta_1,
-        ) = solar_func.ventilated_case_esso(
-            temp_b_1_0,
-            temp_f_2_0,
-            temp_gap_1_0,
-            temp_gap_in_1,
-            a_ho_1,
-            layer[1].height,
-            layer[1].width,
-            layer[0].gap,
-            -7777,
-            d_top,
-            d_bot,
-            d_left,
-            d_right,
-            d_su,
+        ) = solar_func.ventilated_case(
+	        temp_b_1_0,
+	        temp_f_2_0,
+	        temp_gap_1_0,
+	        temp_gap_in_1,
+	        d_su,
+	        d_top,
+	        d_bot,
+	        d_left,
+	        d_right,
+	        layer[1].height,
+	        layer[1].width,
+	        layer[0].gap,
+	        -7777,
         )
         z_init_guess = results
         z = fsolve(iso15099, z_init_guess, xtol=1.49012e-08, factor=0.1)
         results = z
     energy_into_room = conv_coeff_in * (temp_indoor - z[5]) + j_f_3 \
-        - z[7] + q_v_g_1 * (temp_gap_in_1 -
-                            temp_gap_out_1)  # [W/m²] Heat exchang with the interior
+        - z[7]   # [W/m²] Heat exchang with the interior
     if temp_indoor - temp_outdoor == 0:
         print(' U_value needs temperature difference greater than zero')
         u_value = -7777
@@ -352,9 +331,9 @@ def id38(
     temp_indoor,
     temp_sky,
     irradiation,
-    wind_speed,
     conv_coeff_in,
     conv_coeff_out,
+    layerVect,
 ):
     """ ID38 - external roller blind free hanging fitted outside reveal
     Roller blind = Tempotest Star Screen 8024/400
@@ -367,38 +346,35 @@ def id38(
     layer = ndarray((number_layer, ), dtype=object)
     """ First layer """
     layer[0] = solar_func.Layer(
-        1.5,
-        1,
-        0.83,
-        0.83,
-        0.136,
-        0.136,
-        0.034,
-        0.034,
-        0,
-        0,
-        1,
-        0.00052,
-        0.3,
-        0.07,
-    )
-    """ Second layer """
+    layerVect[0, 0],
+    layerVect[0, 1],
+    layerVect[0, 2],
+    layerVect[0, 3],
+    layerVect[0, 4],
+    layerVect[0, 5],
+    layerVect[0, 6],
+    layerVect[0, 7],
+    layerVect[0, 8],
+    layerVect[0, 9],
+    layerVect[0, 10],
+    layerVect[0, 11],
+    layerVect[0, 12],
+    layerVect[0, 13],)
     layer[1] = solar_func.Layer(
-        1.5,
-        1,
-        0.84,
-        0.84,
-        0.16,
-        0.16,
-        0,
-        0,
-        0.60,
-        0.27,
-        0.13,
-        0.024,
-        0.0324,
-        0,
-    )
+    layerVect[1, 0],
+    layerVect[1, 1],
+    layerVect[1, 2],
+    layerVect[1, 3],
+    layerVect[1, 4],
+    layerVect[1, 5],
+    layerVect[1, 6],
+    layerVect[1, 7],
+    layerVect[1, 8],
+    layerVect[1, 9],
+    layerVect[1, 10],
+    layerVect[1, 11],
+    layerVect[1, 12],
+    layerVect[1, 13])
     """ Absorbed Irradiance in each layer """
     abs_irrad = zeros(number_layer)
     abs_irrad[0] = irradiation * layer[0].solar_abs
@@ -417,28 +393,22 @@ def id38(
     (
         hc_1,
         temp_gap_out_1,
-        temp_gap_middle_1,
         temp_gap_1,
         q_v_g_1,
-        temp_av_1,
-        h_0_1,
-        alfa_1,
-        beta_1,
-    ) = solar_func.ventilated_case_esso(
+    ) = solar_func.ventilated_case(
         temp_b_1_0,
         temp_f_2_0,
         temp_gap_1_0,
         temp_gap_in_1,
-        a_ho_1,
-        layer[0].height,
-        layer[0].width,
-        layer[0].gap,
-        -7777,
+        d_su,
         d_top,
         d_bot,
         d_left,
         d_right,
-        d_su,
+        layer[0].height,
+        layer[0].width,
+        layer[0].gap,
+        -7777,
     )
     # [W/m²] Sky (ambient) long wave irradiation
     j_b_0 = constant.SIGMA * temp_sky ** 4
@@ -458,8 +428,7 @@ def id38(
         """ First layer equations """
         F[0] = conv_coeff_out * (temp_f_1 - temp_outdoor) + j_f_1 \
             - j_b_0 - (abs_irrad[0] + hc_1 * (temp_gap_1 - temp_b_1)
-                       + j_f_2 - j_b_1 + q_v_g_1 * (temp_gap_in_1
-                       - temp_gap_out_1))
+                       + j_f_2 - j_b_1 )
         F[1] = j_f_1 - (layer[0].emi_inf_f * constant.SIGMA * temp_f_1
                         ** 4 + layer[0].tra_inf_f * j_f_2
                         + layer[0].ref_inf_f * j_b_0)
@@ -467,9 +436,8 @@ def id38(
                         ** 4 + layer[0].tra_inf_f * j_b_0
                         + layer[0].ref_inf_b * j_f_2)
         F[3] = temp_b_1 - temp_f_1 - layer[0].thickness / (2
-                                                           * layer[0].conductivity) * (2 * (hc_1 * (temp_gap_1
-                                                                                                    - temp_b_1) + j_f_2 - j_b_1 + q_v_g_1 * (temp_gap_in_1
-                                                                                                                                             - temp_gap_out_1)) + abs_irrad[0])
+                        * layer[0].conductivity) * (2 * (hc_1 * (temp_gap_1
+                        - temp_b_1) + j_f_2 - j_b_1) + abs_irrad[0])
         """ Second layer equations """
         F[4] = hc_1 * (temp_f_2 - temp_gap_1) + j_f_2 - j_b_1 \
             - (abs_irrad[1] + conv_coeff_in * (temp_indoor - temp_b_2)
@@ -481,9 +449,9 @@ def id38(
                         ** 4 + layer[1].tra_inf_f * j_b_1
                         + layer[1].ref_inf_b * j_f_3)
         F[7] = temp_b_2 - temp_f_2 - layer[1].thickness / (2
-                                                           * layer[1].conductivity) * (2 * (conv_coeff_in
-                                                                                            * (temp_indoor - temp_b_2) + j_f_3 - j_b_2)
-                                                                                       + abs_irrad[1])
+                        * layer[1].conductivity) * (2 * (conv_coeff_in
+                        * (temp_indoor - temp_b_2) + j_f_3 - j_b_2)
+                        + abs_irrad[1])
         return F
 
     z_init_guess = array([
@@ -507,28 +475,22 @@ def id38(
         (
             hc_1,
             temp_gap_out_1,
-            temp_gap_middle_1,
             temp_gap_1,
             q_v_g_1,
-            temp_av_1,
-            h_0_1,
-            alfa_1,
-            beta_1,
-        ) = solar_func.ventilated_case_esso(
-            temp_b_1_0,
-            temp_f_2_0,
-            temp_gap_1_0,
-            temp_gap_in_1,
-            a_ho_1,
-            layer[0].height,
-            layer[0].width,
-            layer[0].gap,
-            -7777,
-            d_top,
-            d_bot,
-            d_left,
-            d_right,
-            d_su,
+        ) = solar_func.ventilated_case(
+	        temp_b_1_0,
+	        temp_f_2_0,
+	        temp_gap_1_0,
+	        temp_gap_in_1,
+	        d_su,
+	        d_top,
+	        d_bot,
+	        d_left,
+	        d_right,
+	        layer[0].height,
+	        layer[0].width,
+	        layer[0].gap,
+	        -7777,
         )
         z_init_guess = results
         z = fsolve(iso15099, z_init_guess, xtol=1.49012e-08, factor=0.1)
@@ -555,9 +517,9 @@ def id99(
     temp_indoor,
     temp_sky,
     irradiation,
-    wind_speed,
     conv_coeff_in,
     conv_coeff_out,
+    layerVect,
 ):
     """ ID99 - 
     Glazing type = (pane 1 / naturally ventilated gap from exterior / pane 2 
@@ -568,38 +530,35 @@ def id99(
     layer = ndarray((number_layer, ), dtype=object)
     """ First layer """
     layer[0] = solar_func.Layer(
-        1.5,
-        1,
-        0.84,
-        0.84,
-        0.16,
-        0.16,
-        0,
-        0,
-        0.31,
-        0.37,
-        0.31,
-        0.004,
-        1,
-        0.016,
-    )
-    """ Second layer """
+    layerVect[0, 0],
+    layerVect[0, 1],
+    layerVect[0, 2],
+    layerVect[0, 3],
+    layerVect[0, 4],
+    layerVect[0, 5],
+    layerVect[0, 6],
+    layerVect[0, 7],
+    layerVect[0, 8],
+    layerVect[0, 9],
+    layerVect[0, 10],
+    layerVect[0, 11],
+    layerVect[0, 12],
+    layerVect[0, 13],)
     layer[1] = solar_func.Layer(
-        1.5,
-        1,
-        0.84,
-        0.84,
-        0.16,
-        0.16,
-        0,
-        0,
-        0.31,
-        0.37,
-        0.31,
-        0.004,
-        1,
-        0.016,
-    )
+    layerVect[1, 0],
+    layerVect[1, 1],
+    layerVect[1, 2],
+    layerVect[1, 3],
+    layerVect[1, 4],
+    layerVect[1, 5],
+    layerVect[1, 6],
+    layerVect[1, 7],
+    layerVect[1, 8],
+    layerVect[1, 9],
+    layerVect[1, 10],
+    layerVect[1, 11],
+    layerVect[1, 12],
+    layerVect[1, 13])
     """ Absorbed Irradiance in each layer """
     abs_irrad = zeros(number_layer)
     abs_irrad[0] = irradiation * layer[0].solar_abs
@@ -609,37 +568,31 @@ def id99(
     temp_f_2_0 = temp_outdoor + 5
     temp_gap_1_0 = temp_outdoor + 10
     temp_gap_in_1 = temp_outdoor
-    d_top = 0
-    d_bot = 0
-    d_left = 0
-    d_right = 0
+    d_top = 0.005
+    d_bot = 0.005
+    d_left = 0.005
+    d_right = 0.005
     d_su = 0
     a_ho_1 = layer[0].width * layer[0].height * d_su  # area * surface openness
     (
         hc_1,
         temp_gap_out_1,
-        temp_gap_middle_1,
         temp_gap_1,
         q_v_g_1,
-        temp_av_1,
-        h_0_1,
-        alfa_1,
-        beta_1,
-    ) = solar_func.ventilated_case_esso(
+    ) = solar_func.ventilated_case(
         temp_b_1_0,
         temp_f_2_0,
         temp_gap_1_0,
         temp_gap_in_1,
-        a_ho_1,
-        layer[0].height,
-        layer[0].width,
-        layer[0].gap,
-        -7777,
+        d_su,
         d_top,
         d_bot,
         d_left,
         d_right,
-        d_su,
+        layer[0].height,
+        layer[0].width,
+        layer[0].gap,
+        -7777,
     )
     # [W/m²] Sky (ambient) long wave irradiation
     j_b_0 = constant.SIGMA * temp_sky ** 4
@@ -659,8 +612,7 @@ def id99(
         """ First layer equations """
         F[0] = conv_coeff_out * (temp_f_1 - temp_outdoor) + j_f_1 \
             - j_b_0 - (abs_irrad[0] + hc_1 * (temp_gap_1 - temp_b_1)
-                       + j_f_2 - j_b_1 + q_v_g_1 * (temp_gap_in_1
-                       - temp_gap_out_1))
+                       + j_f_2 - j_b_1 )
         F[1] = j_f_1 - (layer[0].emi_inf_f * constant.SIGMA * temp_f_1
                         ** 4 + layer[0].tra_inf_f * j_f_2
                         + layer[0].ref_inf_f * j_b_0)
@@ -668,9 +620,8 @@ def id99(
                         ** 4 + layer[0].tra_inf_f * j_b_0
                         + layer[0].ref_inf_b * j_f_2)
         F[3] = temp_b_1 - temp_f_1 - layer[0].thickness / (2
-                                                           * layer[0].conductivity) * (2 * (hc_1 * (temp_gap_1
-                                                                                                    - temp_b_1) + j_f_2 - j_b_1 + q_v_g_1 * (temp_gap_in_1
-                                                                                                                                             - temp_gap_out_1)) + abs_irrad[0])
+                        * layer[0].conductivity) * (2 * (hc_1 * (temp_gap_1
+                        - temp_b_1) + j_f_2 - j_b_1) + abs_irrad[0])
         """ Second layer equations """
         F[4] = hc_1 * (temp_f_2 - temp_gap_1) + j_f_2 - j_b_1 \
             - (abs_irrad[1] + conv_coeff_in * (temp_indoor - temp_b_2)
@@ -708,28 +659,22 @@ def id99(
         (
             hc_1,
             temp_gap_out_1,
-            temp_gap_middle_1,
             temp_gap_1,
             q_v_g_1,
-            temp_av_1,
-            h_0_1,
-            alfa_1,
-            beta_1,
-        ) = solar_func.ventilated_case_esso(
-            temp_b_1_0,
-            temp_f_2_0,
-            temp_gap_1_0,
-            temp_gap_in_1,
-            a_ho_1,
-            layer[0].height,
-            layer[0].width,
-            layer[0].gap,
-            -7777,
-            d_top,
-            d_bot,
-            d_left,
-            d_right,
-            d_su,
+        ) = solar_func.ventilated_case(
+	        temp_b_1_0,
+	        temp_f_2_0,
+	        temp_gap_1_0,
+	        temp_gap_in_1,
+	        d_su,
+	        d_top,
+	        d_bot,
+	        d_left,
+	        d_right,
+	        layer[0].height,
+	        layer[0].width,
+	        layer[0].gap,
+	        -7777,
         )
         z_init_guess = results
         z = fsolve(iso15099, z_init_guess, xtol=1.49012e-08, factor=0.1)

@@ -61,27 +61,25 @@ def analytic(
     wind_speed,
     conv_coeff_in,
     conv_coeff_out,
-    facade_width,
-    facade_height,
     cavity_depth,
     volume_flowrate,
     cavity_flowrate_factor,
-    textil_thickness,
-    textil_thermal_conductivity,
-    textil_solar_absortivity,
-    textil_emissivity_front,
     textil_open_factor,
-    temp_ini
+    textil_thickness,
+    temp_ini,
+    layerVect,
 ):
     """ model inputs """
     # ! Assumption
     tube_diameter = textil_thickness/2
     number_layer = 4
     number_vertical_partitions = 5
-    textil_emissivity_back = textil_emissivity_front
-    # textil_air_permeability = textil_open_factor
+    #textil_emissivity_back = textil_emissivity_front
+    #textil_air_permeability = textil_open_factor
 
     """ Dimensions and areas """
+    facade_width = layerVect[0, 0]
+    facade_height = layerVect[0, 1]
     facade_area = facade_width*facade_height  # m2
     partition_area = facade_area/number_vertical_partitions
     # ! Assumption
@@ -117,72 +115,65 @@ def analytic(
     layer = ndarray((number_layer, ), dtype=object)
     """ First layer """
     layer[0] = solar_func.Layer(
-        facade_width,
-        facade_height,
-        0.89,
-        0.08,
-        0.11,
-        0.92,
-        0,
-        0,
-        0.75,
-        0.12,
-        0.13,
-        0.004,
-        1,
-        0.014,
-    )
-    """ Second layer """
+    layerVect[0, 0],
+    layerVect[0, 1],
+    layerVect[0, 2],
+    layerVect[0, 3],
+    layerVect[0, 4],
+    layerVect[0, 5],
+    layerVect[0, 6],
+    layerVect[0, 7],
+    layerVect[0, 8],
+    layerVect[0, 9],
+    layerVect[0, 10],
+    layerVect[0, 11],
+    layerVect[0, 12],
+    layerVect[0, 13],)
     layer[1] = solar_func.Layer(
-        facade_width,
-        facade_height,
-        0.89,
-        0.89,
-        0.11,
-        0.11,
-        0,
-        0,
-        0.90,
-        0.08,
-        0.02,
-        0.004,
-        1,
-        0.014,
-    )
-    """ Third layer """
+    layerVect[1, 0],
+    layerVect[1, 1],
+    layerVect[1, 2],
+    layerVect[1, 3],
+    layerVect[1, 4],
+    layerVect[1, 5],
+    layerVect[1, 6],
+    layerVect[1, 7],
+    layerVect[1, 8],
+    layerVect[1, 9],
+    layerVect[1, 10],
+    layerVect[1, 11],
+    layerVect[1, 12],
+    layerVect[1, 13])
     layer[2] = solar_func.Layer(
-        facade_width,
-        facade_height,
-        0.08,
-        0.89,
-        0.92,
-        0.11,
-        0,
-        0,
-        0.75,
-        0.14,
-        0.11,
-        0.004,
-        1,
-        0.210,
-    )
-    """ Textil layer """
+    layerVect[2, 0],
+    layerVect[2, 1],
+    layerVect[2, 2],
+    layerVect[2, 3],
+    layerVect[2, 4],
+    layerVect[2, 5],
+    layerVect[2, 6],
+    layerVect[2, 7],
+    layerVect[2, 8],
+    layerVect[2, 9],
+    layerVect[2, 10],
+    layerVect[2, 11],
+    layerVect[2, 12],
+    layerVect[2, 13])
     layer[3] = solar_func.Layer(
-        facade_width,
-        facade_height,
-        textil_emissivity_front,
-        textil_emissivity_back,
-        1-textil_emissivity_front-textil_open_factor,
-        1-textil_emissivity_back-textil_open_factor,
-        textil_open_factor,
-        textil_open_factor,
-        1-textil_solar_absortivity,
-        0,
-        textil_solar_absortivity,
-        textil_thickness,
-        textil_thermal_conductivity,
-        0,
-    )
+    layerVect[3, 0],
+    layerVect[3, 1],
+    layerVect[3, 2],
+    layerVect[3, 3],
+    layerVect[3, 4],
+    layerVect[3, 5],
+    layerVect[3, 6],
+    layerVect[3, 7],
+    layerVect[3, 8],
+    layerVect[3, 9],
+    layerVect[3, 10],
+    layerVect[3, 11],
+    layerVect[3, 12],
+    layerVect[3, 13])
 
     """ Absorbed Irradiance in each layer """
     abs_irrad = zeros(number_layer)
@@ -212,16 +203,16 @@ def analytic(
     def iso15099(z):
         temp_f_1 = z[0]
         temp_b_1 = z[1]
-        j_f_1 = z[2]
-        j_b_1 = z[3]
+        j_f_1	 = z[2]
+        j_b_1 	 = z[3]
         temp_f_2 = z[4]
         temp_b_2 = z[5]
-        j_f_2 = z[6]
-        j_b_2 = z[7]
+        j_f_2 	 = z[6]
+        j_b_2 	 = z[7]
         temp_f_3 = z[8]
         temp_b_3 = z[9]
-        j_f_3 = z[10]
-        j_b_3 = z[11]
+        j_f_3 	= z[10]
+        j_b_3 	= z[11]
         temp_c = zeros(number_vertical_partitions)
         for i in range(number_vertical_partitions):
             temp_c[i] = z[12+i]
@@ -438,17 +429,13 @@ def four_layer_model(
     wind_speed,
     conv_coeff_in,
     conv_coeff_out,
-    facade_width,
-    facade_height,
     cavity_depth,
     volume_flowrate,
     cavity_flowrate_factor,
-    textil_thickness,
-    textil_thermal_conductivity,
-    textil_solar_absortivity,
-    textil_emissivity_front,
     textil_open_factor,
-    temp_ini
+    textil_thickness,
+    temp_ini,
+    layerVect,
 ):
     """ tgu_hannover_sh - 3 panes with closed cavity according to email from M. Hiller
     Glazing type = Tripe glazing,
@@ -456,77 +443,70 @@ def four_layer_model(
     Takes the boundary conditions and returns the heat exchange with the interior,
     U_value and G_value """
     """ Layers properties """
-    textil_emissivity_back = textil_emissivity_front
+    #textil_emissivity_back = textil_emissivity_front
     number_layer = 4
     layer = ndarray((number_layer, ), dtype=object)
     """ First layer """
     layer[0] = solar_func.Layer(
-        facade_width,
-        facade_height,
-        0.86,
-        0.01,
-        0.14,
-        0.99,
-        0,
-        0,
-        0.275,
-        1-0.275-0.4889,
-        0.4889,
-        0.016,
-        1,
-        0.016,
-    )
-    """ Second layer """
+    layerVect[0, 0],
+    layerVect[0, 1],
+    layerVect[0, 2],
+    layerVect[0, 3],
+    layerVect[0, 4],
+    layerVect[0, 5],
+    layerVect[0, 6],
+    layerVect[0, 7],
+    layerVect[0, 8],
+    layerVect[0, 9],
+    layerVect[0, 10],
+    layerVect[0, 11],
+    layerVect[0, 12],
+    layerVect[0, 13],)
     layer[1] = solar_func.Layer(
-        facade_width,
-        facade_height,
-        0.86,
-        0.86,
-        0.14,
-        0.14,
-        0,
-        0,
-        0.842,
-        1-0.842-0.0136,
-        0.0136,
-        0.004,
-        1,
-        0.016,
-    )
-    """ Third layer """
+    layerVect[1, 0],
+    layerVect[1, 1],
+    layerVect[1, 2],
+    layerVect[1, 3],
+    layerVect[1, 4],
+    layerVect[1, 5],
+    layerVect[1, 6],
+    layerVect[1, 7],
+    layerVect[1, 8],
+    layerVect[1, 9],
+    layerVect[1, 10],
+    layerVect[1, 11],
+    layerVect[1, 12],
+    layerVect[1, 13])
     layer[2] = solar_func.Layer(
-        facade_width,
-        facade_height,
-        0.03,
-        0.86,
-        0.97,
-        0.14,
-        0,
-        0,
-        0.586,
-        1-0.586-0.0376,
-        0.0376,
-        0.008,
-        1,
-        0.210,
-    )
-    """ Textil layer """
+    layerVect[2, 0],
+    layerVect[2, 1],
+    layerVect[2, 2],
+    layerVect[2, 3],
+    layerVect[2, 4],
+    layerVect[2, 5],
+    layerVect[2, 6],
+    layerVect[2, 7],
+    layerVect[2, 8],
+    layerVect[2, 9],
+    layerVect[2, 10],
+    layerVect[2, 11],
+    layerVect[2, 12],
+    layerVect[2, 13])
     layer[3] = solar_func.Layer(
-        facade_width,
-        facade_height,
-        textil_emissivity_front,
-        textil_emissivity_back,
-        1-textil_emissivity_front-textil_open_factor,
-        1-textil_emissivity_back-textil_open_factor,
-        textil_open_factor,
-        textil_open_factor,
-        1-0.14-textil_solar_absortivity,
-        0.14,
-        textil_solar_absortivity,
-        textil_thickness,
-        textil_thermal_conductivity,
-        0,
-    )
+    layerVect[3, 0],
+    layerVect[3, 1],
+    layerVect[3, 2],
+    layerVect[3, 3],
+    layerVect[3, 4],
+    layerVect[3, 5],
+    layerVect[3, 6],
+    layerVect[3, 7],
+    layerVect[3, 8],
+    layerVect[3, 9],
+    layerVect[3, 10],
+    layerVect[3, 11],
+    layerVect[3, 12],
+    layerVect[3, 13])
     """ Absorbed Irradiance in each layer !ADAPT for multiple reflections"""
     abs_irrad = zeros(number_layer)
     abs_irrad[0] = irradiation * layer[0].solar_abs
@@ -543,49 +523,18 @@ def four_layer_model(
     hc_2 = solar_func.h_cv_closed_cavity(
         temp_b_2_0, temp_f_3_0, layer[1].height, layer[1].gap, 0.9)
 
-    temp_b_3_0 = temp_f_3_0 + 2
+    temp_b_3_0 = temp_f_3_0 + 4
     temp_f_4_0 = temp_b_3_0 + 2
-    # hc_3 = solar_func.h_cv_closed_cavity(
-    #     temp_b_3_0, temp_f_4_0, facade_height, cavity_depth)
-    # cavity_velocity = volume_flowrate / facade_width / cavity_depth
-    # hc_3 = solar_func.h_cv_vent_cavity(
-    #     temp_b_3_0, temp_f_4_0, facade_height, cavity_depth, cavity_velocity)
 
     # """ Cavity heat transfer coefficients and initial values """
     temp_gap_3_0 = temp_b_3_0/2. + temp_f_4_0/2.
     temp_gap_in_3 = temp_indoor
-    # d_top = 0.01
-    # d_bot = 0.01
-    # d_left = 0.01
-    # d_right = 0.01
     d_su = 0.04
     a_ho_3 = layer[3].width * layer[3].height * d_su  # area * surface openness
-    # (
-    #     hc_3,
-    #     temp_gap_out_3,
-    #     temp_gap_middle_3,
-    #     temp_gap_3,
-    #     q_v_g_3,
-    #     temp_av_3,
-    #     h_0_3,
-    #     alfa_3,
-    #     beta_3,
-    # ) = solar_func.ventilated_case_esso(
-    #     temp_b_3_0,
-    #     temp_f_4_0,
-    #     temp_gap_3_0,
-    #     temp_gap_in_3,
-    #     a_ho_3,
-    #     layer[2].height,
-    #     layer[2].width,
-    #     layer[2].gap,
-    #     -7777,
-    #     d_top,
-    #     d_bot,
-    #     d_left,
-    #     d_right,
-    #     d_su,
-    # )
+    d_top = 0.050
+    d_bot = 0.050
+    d_left = 0.050
+    d_right = 0.050
     (
         hc_3,
         temp_gap_out_3,
@@ -596,7 +545,11 @@ def four_layer_model(
         temp_f_4_0,
         temp_gap_3_0,
         temp_gap_in_3,
-        a_ho_3,
+        d_su,
+        d_top,
+        d_bot,
+        d_left,
+        d_right,
         layer[2].height,
         layer[2].width,
         layer[2].gap,
@@ -640,10 +593,7 @@ def four_layer_model(
             temp_b_1 ** 4 \
             - layer[0].ref_inf_b * j_f_2 \
             - layer[0].tra_inf_f * j_b_0
-        F[3] = hc_1 * (temp_b_1 - temp_f_2) \
-            + layer[0].conductivity/layer[0].thickness * (temp_b_1 - temp_f_1) \
-            - abs_irrad[0]/2 \
-            + j_b_1 - j_f_2
+        F[3] = hc_1 * (temp_b_1 - temp_f_2) + layer[0].conductivity/layer[0].thickness * (temp_b_1 - temp_f_1) - abs_irrad[0]/2 + j_b_1 - j_f_2
         """ Second glass layer equations """
         F[4] = hc_1 * (temp_f_2 - temp_b_1) \
             + layer[1].conductivity/layer[1].thickness * (temp_f_2 - temp_b_2) \
@@ -661,7 +611,7 @@ def four_layer_model(
             + layer[1].conductivity/layer[1].thickness * (temp_b_2 - temp_f_2) \
             - abs_irrad[1]/2 \
             + j_b_2 - j_f_3
-        """ Third glass layer equations """
+        """ Third glass layer equations """ 
         F[8] = hc_2 * (temp_f_3 - temp_b_2) \
             + layer[2].conductivity/layer[2].thickness * (temp_f_3 - temp_b_3) \
             - abs_irrad[2]/2 \
@@ -674,12 +624,12 @@ def four_layer_model(
             temp_b_3 ** 4 \
             - layer[2].ref_inf_b * j_f_4 \
             - layer[2].tra_inf_f * j_b_2
-        F[11] = hc_3 * (temp_b_3 - temp_f_4) \
+        F[11] = hc_3 * (temp_b_3 - temp_gap_3) \
             + layer[2].conductivity/layer[2].thickness * (temp_b_3 - temp_f_3) \
             - abs_irrad[2]/2 \
             + j_b_3 - j_f_4
         """ Four layer equations """
-        F[12] = hc_3 * (temp_f_4 - temp_b_3) \
+        F[12] = hc_3 * (temp_f_4 - temp_gap_3) \
             + layer[3].conductivity/layer[3].thickness*(temp_f_4 - temp_b_4) \
             - abs_irrad[3]/2 \
             + j_f_4 - j_b_3
@@ -698,8 +648,7 @@ def four_layer_model(
     z = fsolve(iso15099, z_init_guess, xtol=1.49012e-08, factor=0.1)
     results = z
     """ Updating the results with corrected first guess """
-    while abs(results[1] - temp_b_1_0) > 0.001 and abs(results[4]
-                                                       - temp_f_2_0) > 0.001:
+    while abs(results[1] - temp_b_1_0) > .1 and abs(results[4]- temp_f_2_0) > .1 and abs(results[5]- temp_b_2_0) > .1 and abs(results[8]- temp_f_3_0) > .1 and abs(results[9]- temp_b_3_0) > .1 and abs(results[12]- temp_f_4_0) > .1:
         temp_b_1_0 = results[1]
         temp_f_2_0 = results[4]
         hc_1 = solar_func.h_cv_closed_cavity(temp_b_1_0, temp_f_2_0,
@@ -710,38 +659,9 @@ def four_layer_model(
                                              layer[1].height, layer[1].gap, 0.9)
         temp_b_3_0 = results[9]
         temp_f_4_0 = results[12]
-        # hc_3 = solar_func.h_cv_closed_cavity(
-        #     temp_b_3_0, temp_f_4_0, facade_height, cavity_depth)
-        # hc_3 = solar_func.h_cv_vent_cavity(
-        #     temp_b_3_0, temp_f_4_0, facade_height, cavity_depth, cavity_velocity)
         temp_gap_3_0 = temp_b_3_0/2. + temp_f_4_0/2.
         temp_gap_in_3 = temp_indoor
-        # (
-        #     hc_3,
-        #     temp_gap_out_3,
-        #     temp_gap_middle_3,
-        #     temp_gap_3,
-        #     q_v_g_3,
-        #     temp_av_3,
-        #     h_0_3,
-        #     alfa_3,
-        #     beta_3,
-        # ) = solar_func.ventilated_case_esso(
-        #     temp_b_3_0,
-        #     temp_f_4_0,
-        #     temp_gap_3_0,
-        #     temp_gap_in_3,
-        #     a_ho_3,
-        #     layer[2].height,
-        #     layer[2].width,
-        #     layer[2].gap,
-        #     -7777,
-        #     d_top,
-        #     d_bot,
-        #     d_left,
-        #     d_right,
-        #     d_su,
-        # )
+
         (
             hc_3,
             temp_gap_out_3,
@@ -752,13 +672,16 @@ def four_layer_model(
             temp_f_4_0,
             temp_gap_3_0,
             temp_gap_in_3,
-            a_ho_3,
+            d_su,
+            d_top,
+            d_bot,
+            d_left,
+            d_right,
             layer[2].height,
             layer[2].width,
             layer[2].gap,
             -7777,
         )
-        print('hc_3', hc_3)
         z_init_guess = results
         z = fsolve(iso15099, z_init_guess, xtol=1.49012e-08, factor=0.1)
         results = z
@@ -788,7 +711,7 @@ def four_layer_model(
     print(temp_b_4-273.15)
     temp_t = [temp_b_4]
     temp_c = [temp_f_4/2.+temp_b_3/2.]
-    return (temp_t, temp_c)
+    return (temp_t, temp_c,results)
 
 
 def tgu(
@@ -799,6 +722,7 @@ def tgu(
     wind_speed,
     conv_coeff_in,
     conv_coeff_out,
+    layerVect,
 ):
     """ tgu_hannover_sh - 3 panes with closed cavity according to email from M. Hiller
     Glazing type = Tripe glazing,
@@ -809,55 +733,50 @@ def tgu(
     layer = ndarray((number_layer, ), dtype=object)
     """ First layer """
     layer[0] = solar_func.Layer(
-        1.5,
-        1,
-        0.89,
-        0.08,
-        0.11,
-        0.92,
-        0,
-        0,
-        0.75,
-        0.12,
-        0.13,
-        0.004,
-        1,
-        0.014,
-    )
-    """ Second layer """
+    layerVect[0, 0],
+    layerVect[0, 1],
+    layerVect[0, 2],
+    layerVect[0, 3],
+    layerVect[0, 4],
+    layerVect[0, 5],
+    layerVect[0, 6],
+    layerVect[0, 7],
+    layerVect[0, 8],
+    layerVect[0, 9],
+    layerVect[0, 10],
+    layerVect[0, 11],
+    layerVect[0, 12],
+    layerVect[0, 13],)
     layer[1] = solar_func.Layer(
-        1.5,
-        1,
-        0.89,
-        0.89,
-        0.11,
-        0.11,
-        0,
-        0,
-        0.90,
-        0.08,
-        0.02,
-        0.004,
-        1,
-        0.014,
-    )
-    """ Third layer """
+    layerVect[1, 0],
+    layerVect[1, 1],
+    layerVect[1, 2],
+    layerVect[1, 3],
+    layerVect[1, 4],
+    layerVect[1, 5],
+    layerVect[1, 6],
+    layerVect[1, 7],
+    layerVect[1, 8],
+    layerVect[1, 9],
+    layerVect[1, 10],
+    layerVect[1, 11],
+    layerVect[1, 12],
+    layerVect[1, 13])
     layer[2] = solar_func.Layer(
-        1.5,
-        1,
-        0.08,
-        0.89,
-        0.92,
-        0.11,
-        0,
-        0,
-        0.75,
-        0.14,
-        0.11,
-        0.004,
-        1,
-        0,
-    )
+    layerVect[2, 0],
+    layerVect[2, 1],
+    layerVect[2, 2],
+    layerVect[2, 3],
+    layerVect[2, 4],
+    layerVect[2, 5],
+    layerVect[2, 6],
+    layerVect[2, 7],
+    layerVect[2, 8],
+    layerVect[2, 9],
+    layerVect[2, 10],
+    layerVect[2, 11],
+    layerVect[2, 12],
+    layerVect[2, 13])
     """ Absorbed Irradiance in each layer """
     abs_irrad = zeros(number_layer)
     abs_irrad[0] = irradiation * layer[0].solar_abs
@@ -908,8 +827,8 @@ def tgu(
                         + layer[1].tra_inf_f * j_b_1
                         + layer[1].ref_inf_b * j_f_3)
         F[7] = temp_b_2 - temp_f_2 - layer[1].thickness / (2
-                                                           * layer[1].conductivity) * (2 * (conv_coeff_in
-                                                                                            * (temp_indoor - temp_b_2)))
+                        * layer[1].conductivity) * (2 * (conv_coeff_in
+                        * (temp_indoor - temp_b_2)))
 
         """ Third layer equations """
         F[8] = hc_2 * (temp_f_3 - temp_b_2) + j_f_3 - j_b_2  \
@@ -977,6 +896,7 @@ def dgu(
     wind_speed,
     conv_coeff_in,
     conv_coeff_out,
+    layerVect,
 ):
     """ EN673 - 2 panes with closed cavity
     Glazing type = Double glazing (4 mm + 12 mm space + 4 mm) ,
@@ -987,38 +907,35 @@ def dgu(
     layer = ndarray((number_layer, ), dtype=object)
     """ First layer """
     layer[0] = solar_func.Layer(
-        1.5,
-        1,
-        0.84,
-        0.04,
-        0.16,
-        0.96,
-        0,
-        0,
-        0.32,
-        0.28,
-        0.40,
-        0.004,
-        1,
-        0.016,
-    )
-    """ Second layer """
+    layerVect[0, 0],
+    layerVect[0, 1],
+    layerVect[0, 2],
+    layerVect[0, 3],
+    layerVect[0, 4],
+    layerVect[0, 5],
+    layerVect[0, 6],
+    layerVect[0, 7],
+    layerVect[0, 8],
+    layerVect[0, 9],
+    layerVect[0, 10],
+    layerVect[0, 11],
+    layerVect[0, 12],
+    layerVect[0, 13],)
     layer[1] = solar_func.Layer(
-        1.5,
-        1,
-        0.84,
-        0.84,
-        0.16,
-        0.16,
-        0,
-        0,
-        0.83,
-        0.08,
-        0.09,
-        0.004,
-        1,
-        0,
-    )
+    layerVect[1, 0],
+    layerVect[1, 1],
+    layerVect[1, 2],
+    layerVect[1, 3],
+    layerVect[1, 4],
+    layerVect[1, 5],
+    layerVect[1, 6],
+    layerVect[1, 7],
+    layerVect[1, 8],
+    layerVect[1, 9],
+    layerVect[1, 10],
+    layerVect[1, 11],
+    layerVect[1, 12],
+    layerVect[1, 13])
     """ Absorbed Irradiance in each layer """
     abs_irrad = zeros(number_layer)
     abs_irrad[0] = irradiation * layer[0].solar_abs
@@ -1108,6 +1025,7 @@ def tgu_hannover_sh(
     wind_speed,
     conv_coeff_in,
     conv_coeff_out,
+    layerVect,
 ):
     """ tgu_hannover_sh - 3 panes with closed cavity according to email from M. Hiller
     Glazing type = Tripe glazing,
@@ -1118,55 +1036,51 @@ def tgu_hannover_sh(
     layer = ndarray((number_layer, ), dtype=object)
     """ First layer """
     layer[0] = solar_func.Layer(
-        1,
-        3,
-        0.86,
-        0.01,
-        0.14,
-        0.99,
-        0,
-        0,
-        0.275,
-        0.279,
-        0.4637,
-        0.016,
-        1,
-        0.016,
-    )
-    """ Second layer """
+    layerVect[0, 0],
+    layerVect[0, 1],
+    layerVect[0, 2],
+    layerVect[0, 3],
+    layerVect[0, 4],
+    layerVect[0, 5],
+    layerVect[0, 6],
+    layerVect[0, 7],
+    layerVect[0, 8],
+    layerVect[0, 9],
+    layerVect[0, 10],
+    layerVect[0, 11],
+    layerVect[0, 12],
+    layerVect[0, 13],)
     layer[1] = solar_func.Layer(
-        1,
-        3,
-        0.86,
-        0.86,
-        0.14,
-        0.14,
-        0,
-        0,
-        0.842,
-        0.076,
-        0.0099,
-        0.004,
-        1,
-        0.016,
-    )
-    """ Third layer """
+    layerVect[1, 0],
+    layerVect[1, 1],
+    layerVect[1, 2],
+    layerVect[1, 3],
+    layerVect[1, 4],
+    layerVect[1, 5],
+    layerVect[1, 6],
+    layerVect[1, 7],
+    layerVect[1, 8],
+    layerVect[1, 9],
+    layerVect[1, 10],
+    layerVect[1, 11],
+    layerVect[1, 12],
+    layerVect[1, 13])
     layer[2] = solar_func.Layer(
-        1,
-        3,
-        0.03,
-        0.86,
-        0.97,
-        0.14,
-        0,
-        0,
-        0.586,
-        0.210,
-        0.0233,
-        0.008,
-        1,
-        0,
-    )
+    layerVect[2, 0],
+    layerVect[2, 1],
+    layerVect[2, 2],
+    layerVect[2, 3],
+    layerVect[2, 4],
+    layerVect[2, 5],
+    layerVect[2, 6],
+    layerVect[2, 7],
+    layerVect[2, 8],
+    layerVect[2, 9],
+    layerVect[2, 10],
+    layerVect[2, 11],
+    layerVect[2, 12],
+    layerVect[2, 13])
+
     """ Absorbed Irradiance in each layer """
     abs_irrad = zeros(number_layer)
     abs_irrad[0] = irradiation * layer[0].solar_abs
