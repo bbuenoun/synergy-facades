@@ -135,11 +135,7 @@ def h_cv_closed_cavity(T1, T2, height_glazed_area, d_gv, argon_ratio=0):
     # ThP 2015
     # d_gv [m] thickness of the gas layer
     # gas type: 0=Air, 1=Argon, 2=Krypton, 3=Xenon
-    # aminextras
-    #d_gv =0.07
 
-    #height_glazed_area = 1.5
-    #
     Tm = (T1 + T2) / 2  # Mean surface temperatures [K]
 
     air_ratio = 1 - argon_ratio
@@ -214,107 +210,7 @@ def dP_driving_i_k(T_gap_i, T_gap_k, height_glazed_area):
     return dP_driving
 
 
-def ventilated_case(T1, T2, T_gap, T_gap_in, A_ho, height_glazed_area, width_glazed_area, d_gv, V):
-    # ventilated_case(T_f_3_0, T_b_2_0, T_gap_1_2,
-    # The following calculations of values are needed in the calculation of q_i and q_i_plus_1 P.46
-    # The outputs are used in the calcultaions of q_i, q_i_plus_1 and T_gap[i]
-
-    T_av_1_2 = 0.5 * (T2 + T1)
-    # the average temp of the surfaces of layers i and i+1 (tb and tf,i+1)
-    A_s_i = d_gv * (width_glazed_area)
-
-    lambda_gas, mu_gas, Cp_gas, rho_gas = gas_mixture_properties(
-        T_gap,
-        air_ratio=1,
-        argon_ratio=0,
-        krypton_ratio=0,
-        xenon_ratio=0,
-    )
-
-    if V < 0:
-        A_equ_inl_i = (A_ho)
-        A_equ_out_i = (A_ho)
-        Z_inl_i = ((A_s_i / (0.6 * A_equ_inl_i)) - 1) ** 2
-        Z_out_i = ((A_s_i / (0.6 * A_equ_out_i)) - 1) ** 2
-        a11 = (rho_gas / 2) * (1 + Z_inl_i + Z_out_i)
-        b11 = (12 * mu_gas * height_glazed_area) / (d_gv ** 2)
-        c11 = -dP_driving_i_k(T_av_1_2, T_gap_in, height_glazed_area)
-        delta = (b11**2) - (4*a11*c11)
-        V1 = (-b11 - math.sqrt(delta))/(2*a11)
-        V2 = (-b11 + math.sqrt(delta))/(2*a11)
-        if V1 > V2:
-            V = V1
-        else:
-            V = V2
-    airflow = V*((d_gv * (width_glazed_area)))
-    h_cv_1_2 = h_cv_vent_cavity(T1, T2, height_glazed_area, d_gv, V)
-    # [m] The characteristic height of the temperatur profile
-    H_0_1_2 = (rho_gas * Cp_gas * d_gv * V) / (2 * h_cv_1_2)
-    alfa = 1 - exp(-height_glazed_area / H_0_1_2)
-    beta = exp(-height_glazed_area / H_0_1_2)
-    # [K] The gap outlet temperature
-    T_gap_out = T_av_1_2 - ((T_av_1_2 - T_gap_in) *
-                            exp((-height_glazed_area) / H_0_1_2))
-    T_gap_middle = T_av_1_2 - ((T_av_1_2 - T_gap_in)
-                               * exp((-height_glazed_area) / (2 * H_0_1_2)))
-    T_gap = T_av_1_2 - ((H_0_1_2/height_glazed_area) * (T_gap_out - T_gap_in))
-    q_v_g = (rho_gas * Cp_gas * airflow) / \
-        (width_glazed_area * height_glazed_area)
-    return h_cv_1_2, T_gap_out, T_gap, q_v_g  # pylint: disable=unbalanced-tuple-unpacking
-
-
-def ventilated_case_stvb(T1, T2, T_gap, T_gap_in, A_ho, height_glazed_area, width_glazed_area, d_gv, V):
-    # ventilated_case(T_f_3_0, T_b_2_0, T_gap_1_2,
-    # The following calculations of values are needed in the calculation of q_i and q_i_plus_1 P.46
-    # The outputs are used in the calcultaions of q_i, q_i_plus_1 and T_gap[i]
-
-    T_av_1_2 = 0.5 * (T2 + T1)
-    # the average temp of the surfaces of layers i and i+1 (tb and tf,i+1)
-    A_s_i = d_gv * (width_glazed_area)
-
-    lambda_gas, mu_gas, Cp_gas, rho_gas = gas_mixture_properties(
-        T_gap,
-        air_ratio=1,
-        argon_ratio=0,
-        krypton_ratio=0,
-        xenon_ratio=0,
-    )
-
-    if V < 0:
-        A_equ_inl_i = (A_ho)
-        A_equ_out_i = (A_ho)
-        Z_inl_i = ((A_s_i / (0.6 * A_equ_inl_i)) - 1) ** 2
-        Z_out_i = ((A_s_i / (0.6 * A_equ_out_i)) - 1) ** 2
-        a11 = (rho_gas / 2) * (1 + Z_inl_i + Z_out_i)
-        b11 = (12 * mu_gas * height_glazed_area) / (d_gv ** 2)
-        c11 = -dP_driving_i_k(T_av_1_2, T_gap_in, height_glazed_area)
-        delta = (b11**2) - (4*a11*c11)
-        solution1 = (-b11 - math.sqrt(delta))/(2*a11)
-        solution2 = (-b11 + math.sqrt(delta))/(2*a11)
-        V1 = solution1
-        V2 = solution2
-        if V1 > V2:
-            V = V1
-        else:
-            V = V2
-    airflow = V*((d_gv * (width_glazed_area)))
-    h_cv_1_2 = h_cv_vent_cavity(T1, T2, height_glazed_area, d_gv, V)
-    # [m] The characteristic height of the temperatur profile
-    H_0_1_2 = (rho_gas * Cp_gas * d_gv * V) / (2 * h_cv_1_2)
-    alfa = 1 - exp(-height_glazed_area / H_0_1_2)
-    beta = exp(-height_glazed_area / H_0_1_2)
-    # [K] The gap outlet temperature
-    T_gap_out = T_av_1_2 - ((T_av_1_2 - T_gap_in) *
-                            exp((-height_glazed_area) / H_0_1_2))
-    T_gap_middle = T_av_1_2 - ((T_av_1_2 - T_gap_in)
-                               * exp((-height_glazed_area) / (2 * H_0_1_2)))
-    T_gap = T_av_1_2 - ((H_0_1_2/height_glazed_area) * (T_gap_out - T_gap_in))
-    q_v_g = (rho_gas * Cp_gas * airflow) / \
-        (width_glazed_area * height_glazed_area)
-    return h_cv_1_2, T_gap_out, T_gap_middle, T_gap, q_v_g, T_av_1_2, H_0_1_2, alfa, beta  # pylint: disable=unbalanced-tuple-unpacking
-
-
-def ventilated_case_esso(T1, T2, T_gap, T_gap_in, A_ho, height_glazed_area, width_glazed_area, d_gv, V, d_top, d_bot, d_left, d_right, d_su):
+def ventilated_case(T1, T2, T_gap, T_gap_in, d_su,d_top, d_bot, d_left, d_right, height_glazed_area, width_glazed_area, d_gv, V):
     # ventilated_case(T_f_3_0, T_b_2_0, T_gap_1_2,
     # The following calculations of values are needed in the calculation of q_i and q_i_plus_1 P.46
     # The outputs are used in the calcultaions of q_i, q_i_plus_1 and T_gap[i]
@@ -346,10 +242,6 @@ def ventilated_case_esso(T1, T2, T_gap, T_gap_in, A_ho, height_glazed_area, widt
     if d_top == 0 and d_bot == 0 and d_left == 0 and d_right == 0:
         A_equ_inl_i = 0.25 * A_ho
         A_equ_out_i = 0.25 * A_ho
-    # when there is no gap at the sides nor surface opennes and only bottom and top openning as big as the cavity
-    if d_top == 0 and d_bot == 0 and d_left == 0 and d_right == 0 and d_su == 0:
-        A_equ_inl_i = d_gv * width_glazed_area
-        A_equ_out_i = d_gv * width_glazed_area
     if V < 0:
         Z_inl_i = ((A_s_i / (0.6 * A_equ_inl_i)) - 1) ** 2
         Z_out_i = ((A_s_i / (0.6 * A_equ_out_i)) - 1) ** 2
@@ -365,9 +257,8 @@ def ventilated_case_esso(T1, T2, T_gap, T_gap_in, A_ho, height_glazed_area, widt
             V = V1
         else:
             V = V2
-
     airflow = V*((d_gv * (width_glazed_area)))
-    h_cv_1_2 = h_cv_vent_cavity(T1, T2, height_glazed_area, d_gv, V)
+    h_cv_1_2 = 0.5 * h_cv_vent_cavity(T1, T2, height_glazed_area, d_gv, V)
     # [m] The characteristic height of the temperatur profile
     H_0_1_2 = (rho_gas * Cp_gas * d_gv * V) / (2 * h_cv_1_2)
     alfa = 1 - exp(-height_glazed_area / H_0_1_2)
@@ -378,6 +269,8 @@ def ventilated_case_esso(T1, T2, T_gap, T_gap_in, A_ho, height_glazed_area, widt
     T_gap_middle = T_av_1_2 - ((T_av_1_2 - T_gap_in)
                                * exp((-height_glazed_area) / (2 * H_0_1_2)))
     T_gap = T_av_1_2 - ((H_0_1_2/height_glazed_area) * (T_gap_out - T_gap_in))
-    q_v_g = (rho_gas * Cp_gas * airflow) / \
-        (width_glazed_area * height_glazed_area)
-    return h_cv_1_2, T_gap_out, T_gap_middle, T_gap, q_v_g, T_av_1_2, H_0_1_2, alfa, beta  # pylint: disable=unbalanced-tuple-unpacking
+    q_v_g = (rho_gas * Cp_gas * airflow) * (T_gap_in-T_gap_out
+             ) / (width_glazed_area * height_glazed_area)
+    return h_cv_1_2, T_gap_out, T_gap, q_v_g  # pylint: disable=unbalanced-tuple-unpacking
+
+
